@@ -15,19 +15,12 @@ export function useProductsList(options: UseProductsListOptions) {
 
   const { data, isFetching, error, refetch } = useQuery({
     queryKey: ['products', page, pageSize, searchText, sort],
-    // TODO: cleanup
     queryFn: () => fetchProducts({
       skip: (page - 1) * pageSize,
       limit: pageSize,
       search: searchText,
       sort,
     }),
-    // queryFn: async (): ReturnType<typeof fetchProducts> => ({
-    //   products: [],
-    //   limit: 20,
-    //   skip: 0,
-    //   total: 200,
-    // }),
   });
 
   const refresh = async () => {
