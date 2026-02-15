@@ -59,11 +59,16 @@ export function useProductsColumns(options: {
       sortable: true,
       align: 'center',
       cell: (row) => {
-        const rating = `${row.rating.toFixed(1)}/5`;
-        if (row.rating < 3) {
-          return <Text color="red">{rating}</Text>;
-        }
-        return <Text>{rating}</Text>;
+        const ratingStr = row.rating.toFixed(1);
+        const color = row.rating < 3
+          ? 'red'
+          : undefined;
+        return (
+          <Text textWrap="nowrap">
+            <Text as="span" color={color}>{ratingStr}</Text>
+            <Text as="span">/5</Text>
+          </Text>
+        );
       },
     },
     {

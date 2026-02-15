@@ -1,3 +1,4 @@
+import { getAuthHeaders } from '~/shared/auth';
 import type { SortOption } from '~/shared/model/sort';
 
 export type ApiProduct = {
@@ -67,7 +68,11 @@ export async function fetchProducts(options: FetchProductsOptions) {
     url.searchParams.append('order', sort.order);
   }
 
-  const response = await fetch(url);
+  const response = await fetch(url, {
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
   if (!response.ok) {
     throw new Error(response.statusText);
   }

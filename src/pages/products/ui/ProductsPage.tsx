@@ -1,12 +1,15 @@
-import { useSearchQuery } from '~/shared/lib/search';
-import { useProductsList } from '../model/use-products-list';
-import { useProductsColumns } from './use-product-columns';
-import { Box, Button, Center, Heading, HStack, IconButton, Input, InputGroup, Stack, Text } from '@chakra-ui/react';
-import { SearchIcon, RefreshCwIcon, CirclePlusIcon } from 'lucide-react';
-import { DataTable, DataTablePagination, useDataTableSelection } from '~/shared/ui/table';
-import type { ApiProduct } from '../api/fetch-products';
+import { Button, Center, Heading, HStack, IconButton, Input, InputGroup, Stack, Text } from '@chakra-ui/react';
+import { CirclePlusIcon, RefreshCwIcon, SearchIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDebouncedFn } from '~/shared/lib/debounce';
+import { useSearchQuery } from '~/shared/lib/search';
+import { DataTable, DataTablePagination, useDataTableSelection } from '~/shared/ui/table';
+import type { ApiProduct } from '../api/fetch-products';
+import { useCreateProduct } from '../model/create-product';
+import { useProductsList } from '../model/use-products-list';
+import { CreateProductDialog } from './CreateProductDialog';
+import { useProductsColumns } from './use-product-columns';
+import { clearAuthToken } from '~/shared/auth';
 
 function PageHeader(props: {
   searchText: string;
@@ -27,6 +30,11 @@ function PageHeader(props: {
     onSearchTextChangeDebounced(value);
   };
 
+  const onLogout = () => {
+    clearAuthToken();
+    location.reload();
+  };
+
   return (
     <HStack py="26px" px="30px" bg="#FFF">
       <Heading flex="1" fontSize="24px">Товары</Heading>
@@ -39,7 +47,9 @@ function PageHeader(props: {
           onChange={(e) => onChangeSearch(e.currentTarget.value)}
         />
       </InputGroup>
-      <Box flex="1" />
+      <HStack justify="end" flex="1">
+        <Button variant="outline" onClick={onLogout}>Выйти</Button>
+      </HStack>
     </HStack>
   );
 }
@@ -54,16 +64,8 @@ export function ProductsPage() {
     setSearchText,
     setSort,
   } = useSearchQuery();
-  // const [page, setPage] = useState(1);
-  // const [pageSize, setPageSize] = useState(20);
-  // const [searchText, setSearchText] = useState('');
-  // const [sort, setSort] = useState<any>(null);
 
   const { data, isFetching, error, refresh } = useProductsList({ page, pageSize, searchText, sort });
-
-  useEffect(() => {
-    console.log('page');
-  }, []);
 
   const columns = useProductsColumns({
     onClickAdd: () => alert('В реальном приложении что-нибудь бы произошло'),
@@ -71,9 +73,7 @@ export function ProductsPage() {
   });
   const selection = useDataTableSelection<ApiProduct>((x) => String(x.id));
 
-  const onCreateClick = () => {
-    // TODO:
-  };
+  const createProduct = useCreateProduct();
 
   return (
     <Stack h="full" overflow="hidden" bg="#F6F6F6" pt="20px" gap="30px">
@@ -89,7 +89,7 @@ export function ProductsPage() {
             <IconButton variant="outline" onClick={refresh}>
               <RefreshCwIcon />
             </IconButton>
-            <Button gap="15px" onClick={onCreateClick}>
+            <Button gap="15px" onClick={createProduct.openDialog}>
               <CirclePlusIcon />
               <Text>Добавить</Text>
             </Button>
@@ -121,6 +121,13 @@ export function ProductsPage() {
           />
         )}
       </Stack>
+
+      {createProduct.dialog.open && (
+        <CreateProductDialog
+          dialog={createProduct.dialog}
+          onSubmit={createProduct.onSubmit}
+        />
+      )}
     </Stack>
   );
 }

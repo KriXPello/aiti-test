@@ -168,13 +168,14 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
               <Table.Row key={hg.id}>
                 {hg.headers.map((h) => {
                   const columnId = h.column.id;
-                  const { sortable = false, width } = h.column.columnDef.meta ?? {};
+                  const { align = 'start', sortable = false, width } = h.column.columnDef.meta ?? {};
                   return (
                     <Table.ColumnHeader
                       key={h.id}
                       onClick={() => toggleSort(columnId, sortable)}
                       cursor={sortable ? 'pointer' : 'default'}
                       userSelect="none"
+                      textAlign={align}
                       w={width}
                     >
                       <Group gap="2" alignItems="center">

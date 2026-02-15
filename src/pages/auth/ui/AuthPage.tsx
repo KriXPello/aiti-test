@@ -1,11 +1,7 @@
-import { Box, Button, Center, Flex, Heading, HStack, Link, Separator, Text } from '@chakra-ui/react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+import { Box, Center, Flex, Heading, HStack, Link, Separator, Spinner, Text } from '@chakra-ui/react';
 import LogoIcon from '~/assets/svg/logo.svg?react';
-import UserIcon from '~/assets/svg/user.svg?react';
-import LockIcon from '~/assets/svg/lock.svg?react';
-import { CheckboxField, PasswordField, TextField } from '~/shared/ui/form';
+import { useLogin } from '../model/login';
+import { LoginForm } from './LoginForm';
 
 function FormHeader() {
   return (
@@ -35,81 +31,16 @@ function FormHeader() {
   );
 }
 
-const authSchema = z.object({
-  login: z.string().min(1, 'Введите логин'),
-  password: z.string().min(1, 'Введите пароль'),
-  rememberMe: z.boolean(),
-});
-
-type AuthFormData = z.infer<typeof authSchema>;
-
-function LoginForm() {
-  const {
-    control, handleSubmit,
-  } = useForm<AuthFormData>({
-    resolver: zodResolver(authSchema),
-    defaultValues: {
-      login: '',
-      password: '',
-      rememberMe: false,
-    },
-  });
-
-  const onSubmit = async (data: AuthFormData) => {
-    console.log(data);
-    // TODO: авторизация и редирект на страницу товаров
-  };
-
-  return (
-    <Box as="form" onSubmit={handleSubmit(onSubmit)}>
-      <TextField
-        mt="32px"
-        control={control}
-        name="login"
-        label="Логин"
-        placeholder="username"
-        autoComplete="username"
-        clearable
-        icon={<UserIcon height="18px" />}
-      />
-
-      <PasswordField
-        mt="16px"
-        control={control}
-        name="password"
-        label="Пароль"
-        placeholder="****"
-        autoComplete="current-password"
-        icon={<LockIcon height="18px" />}
-      />
-
-      <CheckboxField
-        mt="20px"
-        control={control}
-        name="rememberMe"
-        label="Запомнить данные"
-      />
-
-      <Button
-        w="full"
-        mt="20px"
-        colorPalette="blue"
-        type="submit"
-      >
-        Войти
-      </Button>
-    </Box>
-  );
-}
-
 export function AuthPage() {
   const onCreateAccount = () => {
     alert('В реальном приложении было бы переключение на форму регистрации');
   };
 
+  const { isLoggingIn, onLogin } = useLogin();
+
   return (
     <Center w="full" h="full">
-      <Box w="full" maxW="512px" p="6px" fill="white" shadow="0px 24px 32px rgba(0, 0, 0, 4%)" rounded="34px">
+      <Box position="relative" w="full" maxW="512px" p="6px" fill="white" shadow="0px 24px 32px rgba(0, 0, 0, 4%)" rounded="34px">
         <Box
           w="full"
           maxW="512px"
@@ -118,7 +49,7 @@ export function AuthPage() {
           bgImage="linear-gradient(to bottom, rgba(35, 35, 35, 0.03), rgba(35, 35, 35, 0) 50%)"
         >
           <FormHeader />
-          <LoginForm />
+          <LoginForm onSubmit={onLogin} />
           <HStack mt="16px">
             <Separator flex="1" />
             <Text flexShrink="0" color="#BABABA" lineHeight="1.5">или</Text>
@@ -130,6 +61,18 @@ export function AuthPage() {
             <Link fontWeight="semibold" color="#242EDB" variant="underline" onClick={onCreateAccount}>Создать</Link>
           </Text>
         </Box>
+
+        {isLoggingIn && (
+          <Center
+            position="absolute"
+            inset="0"
+            bg="bg/70"
+            backdropFilter="blur(2px)"
+            aria-label="Вход"
+          >
+            <Spinner />
+          </Center>
+        )}
       </Box>
     </Center>
   );

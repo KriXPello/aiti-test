@@ -1,13 +1,18 @@
 import { createBrowserRouter } from 'react-router';
-import { App } from './App';
 import { AuthPage } from '~/pages/auth';
 import { ProductsPage } from '~/pages/products';
+import { authMiddleware } from '~/shared/auth/middleware';
 
-export const router = createBrowserRouter([{
-  path: '/',
-  Component: App,
-  children: [
-    { path: 'auth', Component: AuthPage },
-    { path: 'products', Component: ProductsPage },
-  ],
-}]);
+export const router = createBrowserRouter([
+  {
+    path: '/auth',
+    Component: AuthPage,
+  },
+  {
+    path: '/',
+    middleware: [authMiddleware],
+    children: [
+      { path: 'products', Component: ProductsPage },
+    ],
+  },
+]);
